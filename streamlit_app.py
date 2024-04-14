@@ -1,5 +1,4 @@
 import os
-from PyPDF2 import PdfReader
 import streamlit as st
 
 # To create the vector store, we need to load the PDF file
@@ -81,14 +80,8 @@ def main():
         st.title("Menú:")
         pdf_docs = st.file_uploader("Carge los documentos", accept_multiple_files=True)
         if st.button("Submit and Process", key="process?button"):
-            docs = []
-            reader = PdfReader(pdf_docs)
-            i = 1
-            for page in reader.pages:
-                docs.append(page_content=page.extract_text(), metadata={'page':i})
-                i += 1
             with st.spinner("Procesando..."):
-                raw_text = load_pdf(docs)
+                raw_text = load_pdf(pdf_docs)
                 text_chunks = get_chunks(raw_text)
                 get_vector_store(text_chunks)
                 st.success("Procesamiento completado.")
