@@ -4,11 +4,11 @@ import streamlit as st
 # To create the vector store, we need to load the PDF file
 # split it into pages, split the pages into chunks
 # and get the vectors for each chunk.
-
+from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.vectorstores import FAISS
+
 
 # To have a Chat prompt and response
 from langchain_community.llms import Ollama
@@ -44,7 +44,7 @@ def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='nomic-embed-text:latest') 
     vector_store = FAISS.from_documents(chunks, embeddings)
-    vector_store.save_local("FAISS_index")
+    vector_store.save_local("Character_FAISS_nomic")
 
 def get_conversational_chain():
     """Get a conversation prompt and response."""
@@ -63,7 +63,7 @@ Question: {input}""")
 def user_input(user_question):
     """Get user input and return the response."""
     embeddings = OllamaEmbeddings(model='nomic-embed-text:latest')
-    new_vector_store = FAISS.load_local("FAISS_index", embeddings)
+    new_vector_store = FAISS.load_local("Character_FAISS_nomic", embeddings)
     chain = get_conversational_chain()
     retriever = new_vector_store.as_retriever()
     retrieval_chain = create_retrieval_chain(retriever, chain)
