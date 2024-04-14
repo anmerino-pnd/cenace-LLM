@@ -4,10 +4,11 @@ import streamlit as st
 # To create the vector store, we need to load the PDF file
 # split it into pages, split the pages into chunks
 # and get the vectors for each chunk.
-from langchain_community.vectorstores import FAISS
+
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.vectorstores import FAISS
 
 # To have a Chat prompt and response
 from langchain_community.llms import Ollama
