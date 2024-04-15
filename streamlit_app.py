@@ -82,7 +82,7 @@ def main():
         if pdf_docs :
             temp_file = "./temp.pdf"
             with open(temp_file, "wb") as f:
-                f.write(pdf_docs.read())
+                #f.write(pdf_docs.read())
                 f.name = pdf_docs.name
         if st.button("Submit and Process", key="process?button"):
             with st.spinner("Procesando..."):
