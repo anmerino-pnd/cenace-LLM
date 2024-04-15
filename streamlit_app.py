@@ -79,10 +79,14 @@ def main():
     with st.sidebar:
         st.title("Menú:")
         pdf_docs = st.file_uploader("Carge los documentos", accept_multiple_files=True)
-        tmp_location = os.path.join('/tmp', pdf_docs.name)
+        if pdf_docs :
+            temp_file = "./temp.pdf"
+            with open(temp_file, "wb") as f:
+                f.write(pdf_docs.read())
+                f.name = pdf_docs.name
         if st.button("Submit and Process", key="process?button"):
             with st.spinner("Procesando..."):
-                raw_text = load_pdf(tmp_location)
+                raw_text = load_pdf(temp_file)
                 text_chunks = get_chunks(raw_text)
                 get_vector_store(text_chunks)
                 st.success("Procesamiento completado.")
