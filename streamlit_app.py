@@ -6,8 +6,7 @@ import streamlit as st
 # To create the vector store, we need to load the PDF file
 # split it into pages, split the pages into chunks
 # and get the vectors for each chunk.
-from langchain_chroma import Chroma
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS, chroma
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
@@ -56,7 +55,7 @@ def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
     st.write(type(chunks))
-    vector_store = Chroma.from_documents(chunks, embeddings)
+    vector_store = chroma.from_documents(chunks, embeddings)
     st.write(vector_store)
     return vector_store
 

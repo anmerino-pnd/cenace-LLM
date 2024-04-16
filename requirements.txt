@@ -3,6 +3,5 @@ langchain-community==0.0.24
 PyPDF2==2.0
 pypdf  
 faiss-cpu
-huggingface_hub
 InstructorEmbedding
 langchain-chroma
