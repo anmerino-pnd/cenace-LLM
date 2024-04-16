@@ -52,7 +52,7 @@ def get_chunks(raw_text):
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='nomic-embed-text:latest') 
-    vector_store = FAISS.from_texts(chunks, embeddings)
+    vector_store = FAISS.from_documents(chunks, embeddings)
     return vector_store
 
 # def get_conversational_chain():
@@ -91,8 +91,8 @@ def main():
                 if pdf_docs is not None:
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
-                    st.success(f"Se han cargado {len(chunks)} fragmentos")
-                    #vectore_store = get_vector_store(chunks)
+                    vectore_store = get_vector_store(chunks)
+                    st.success("Vector store creado")
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
 
