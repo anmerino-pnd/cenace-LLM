@@ -103,6 +103,7 @@ def main():
                             st.success(f"Procesado: {file.name}")
                             # Load the PDF and combine its pages
                             pages = load_pdf([file])
+                            st.success(f"Se han cargado {len(pages)} páginas")
                             # Split the pages into chunks
                             # chunks = get_chunks(pages)
 
