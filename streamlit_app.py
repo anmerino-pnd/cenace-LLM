@@ -36,16 +36,12 @@ def load_pdf(pdf_files):
             # Use PyPDFLoader to process the PDF
             pdf_loader = PyPDFLoader(file_path)
             pages = pdf_loader.load_and_split()
-            text = ""
-            for page in pages:
-                text += page 
-
-            extracted_texts.append(text.strip())  # Store extracted text for each file
+            extracted_texts += pages
 
         except Exception as e:
             print(f"Error processing file {pdf.name}: {e}")
             extracted_texts.append(None)  # Indicate error
-
+    st.success(f"Se han cargado {len(extracted_texts)} páginas")
     return extracted_texts
 
 
