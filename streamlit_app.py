@@ -53,11 +53,11 @@ def get_chunks(raw_text):
     chunks = text_splitter.split_text(raw_text)
     return chunks
 
-# def get_vector_store(chunks):
-#     """Get vectors for each chunk."""
-#     embeddings = OllamaEmbeddings(model='nomic-embed-text:latest') 
-#     vector_store = FAISS.from_documents(chunks, embeddings)
-#     vector_store.save_local("Character_FAISS_nomic")
+def get_vector_store(chunks):
+    """Get vectors for each chunk."""
+    embeddings = OllamaEmbeddings(model='nomic-embed-text:latest') 
+    vector_store = FAISS.from_texts(chunks, embeddings)
+    return vector_store
 
 # def get_conversational_chain():
 #     """Get a conversation prompt and response."""
@@ -95,7 +95,7 @@ def main():
                 if pdf_docs is not None:
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
-                    st.success(f"Se han dividido los documentos en {len(chunks)} fragmentos")
+                    vectore_store = get_vector_store(chunks)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
 
