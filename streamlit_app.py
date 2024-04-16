@@ -76,7 +76,8 @@ def main():
             with st.spinner("Procesando PDF"):
                 # get pdf text
                 if pdf_docs is not None:
-                    raw_text = load_pdf(pdf_docs)
+                    #raw_text = load_pdf(pdf_docs)
+                    st.success(pdf_docs.name)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
                 # get chunks
