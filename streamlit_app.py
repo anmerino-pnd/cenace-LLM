@@ -33,11 +33,7 @@ def load_pdf(pdf_files):
     text = ""
     for pdf in pdf_files:
         try:
-            if isinstance(pdf, str):  # Handle file paths directly
-                pdf_reader = PdfReader(pdf)
-            else:  # Extract file path from Streamlit UploadedFile
-                with open(pdf.name, "rb") as f:
-                    pdf_reader = PdfReader(f)
+            pdf_reader = PdfReader(pdf)
 
             if pdf_reader.isEncrypted:
                 st.error("El archivo PDF parece estar encriptado. Por favor, proporcione una versión desencriptada o suba un archivo PDF diferente.")
@@ -51,11 +47,11 @@ def load_pdf(pdf_files):
         st.success(f"Se han cargado {len(text)} páginas")
     return text
 
-# def get_chunks(page):
-#     """the text is split into chunks of 1000 characters each."""
-#     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-#     chunks = text_splitter.split_documents(page)
-#     return chunks
+def get_chunks(raw_text):
+    """the text is split into chunks of 1000 characters each."""
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    chunks = text_splitter.split_documents(raw_text)
+    return chunks
 
 # def get_vector_store(chunks):
 #     """Get vectors for each chunk."""
@@ -98,7 +94,7 @@ def main():
             with st.spinner("Procesando PDF"):
                 if pdf_docs is not None:
                     raw_text = load_pdf(pdf_docs)
-                    st.write(raw_text)
+                    chunks = get_chunks(raw_text)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
 
