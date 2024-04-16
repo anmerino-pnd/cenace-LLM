@@ -7,7 +7,7 @@ import streamlit as st
 # split it into pages, split the pages into chunks
 # and get the vectors for each chunk.
 from PyPDF2 import PdfReader
-from langchain_community.vectorstores import FAISS
+from langchain.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 from langchain_community.embeddings import OllamaEmbeddings
@@ -55,7 +55,6 @@ def get_chunks(raw_text):
 
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
-    st.write(chunks)
     embeddings = OllamaEmbeddings(model='gemma:2b')
     #embeddings = HuggingFaceInstructEmbeddings(model_name='hkunlp/instructor-xl')
     st.write(embeddings)
