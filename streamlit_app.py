@@ -25,7 +25,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 def load_pdf(file):
     """Load a PDF file and split it into pages."""
     with open(file.name, "rb") as f:
-        pdf_loader = pdf_loader.PyPDFLoader(f)
+        pdf_loader = PyPDFLoader(f)
         page = pdf_loader.load_and_split()
         return page
 
