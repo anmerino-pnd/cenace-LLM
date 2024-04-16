@@ -51,7 +51,7 @@ def get_chunks(raw_text):
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
-    vector_store = FAISS.from_documents(chunks, embeddings)
+    vector_store = FAISS.from_texts(texts=chunks, embedding= embeddings)
     return vector_store
 
 def get_conversational_chain(VectorStore):
