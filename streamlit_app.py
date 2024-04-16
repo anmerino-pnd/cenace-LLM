@@ -34,11 +34,17 @@ def load_pdf(pdf_files):
     for pdf in pdf_files:
         try:
             pdf_reader = PdfReader(pdf)
-            for page in pdf_reader.pages:
-                text += page.extract_text()
+
+            if pdf_reader.isEncrypted:
+                st.error("El archivo PDF parece estar encriptado. Por favor, proporcione una versión desencriptada o suba un archivo PDF diferente.")
+            else:
+                for page in pdf_reader.pages:
+                    text += page.extract_text()
         except Exception as e:
             st.error(f"Error processing file {pdf}: {e}")  # Informative error handling
-    st.success(f"Se han cargado {len(text)} páginas")
+
+    if text:
+        st.success(f"Se han cargado {len(text)} páginas")
     return text
 
 # def get_chunks(page):
