@@ -104,8 +104,8 @@ def main():
                     vectore_store = get_vector_store(chunks)
                     st.session_state.conversation = get_conversational_chain(
                         vectore_store)
-                else:
-                    st.error("No se ha seleccionado ningún archivo PDF")
+        else:
+            st.error("No se ha seleccionado ningún archivo PDF")
 
 
 
