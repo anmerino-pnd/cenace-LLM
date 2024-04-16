@@ -6,7 +6,7 @@ import streamlit as st
 # To create the vector store, we need to load the PDF file
 # split it into pages, split the pages into chunks
 # and get the vectors for each chunk.
-!pip install langchain-chroma
+pip install langchain-chroma
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS, chroma
 from langchain.text_splitter import CharacterTextSplitter
