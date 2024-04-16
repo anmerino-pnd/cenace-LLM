@@ -78,8 +78,6 @@ def main():
                     for file in pdf_docs:
                         # Process each PDF
                         try:
-                            # Get PDF text
-                            raw_text = load_pdf(file)
                             st.success(f"Procesado: {file.name}")
 
                             # Process or display chunks and vectors as needed
