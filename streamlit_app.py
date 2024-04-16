@@ -51,7 +51,7 @@ def get_chunks(raw_text):
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
-    st.write(embeddings)
+    st.write(type(embeddings))
     vector_store = FAISS.from_documents(chunks, embeddings)
     return vector_store
 
