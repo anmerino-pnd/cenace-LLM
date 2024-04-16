@@ -58,7 +58,7 @@ def get_vector_store(chunks):
     embeddings = OllamaEmbeddings(model='gemma:2b')
     #embeddings = HuggingFaceInstructEmbeddings(model_name='hkunlp/instructor-xl')
     st.write(embeddings)
-    vector_store = FAISS.from_documents(chunks, embeddings)
+    vector_store = FAISS.from_texts(chunks, embeddings)
     return vector_store
 
 def get_conversational_chain(VectorStore):
