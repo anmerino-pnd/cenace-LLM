@@ -22,12 +22,34 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
 
-def load_pdf(file):
-    """Load a PDF file and split it into pages."""
-    with open(file.name, "rb") as f:
-        pdf_loader = PyPDFLoader(f)
-        page = pdf_loader.load_and_split()
-        return page
+def load_pdf(pdf_files):
+    """Loads a list of PDF files and combines their pages into a single list.
+
+    Args:
+        pdf_files (list): A list of file paths or Streamlit UploadedFile objects.
+
+    Returns:
+        list: A list containing all pages from all the PDFs.
+    """
+
+    all_pages = []
+    for file in pdf_files:
+        try:
+            # Handle both file paths and Streamlit UploadedFile objects
+            if isinstance(file, str):
+                with open(file, "rb") as f:
+                    pdf_loader = pdf_loader.PyPDFLoader(f)
+                    pages = pdf_loader.load_and_split()
+            else:
+                with open(file.name, "rb") as f:
+                    pdf_loader = pdf_loader.PyPDFLoader(f)
+                    pages = pdf_loader.load_and_split()
+
+            all_pages.extend(pages)  # Efficiently append all pages
+        except Exception as e:
+            print(f"Error processing file {file}: {e}")  # Informative error handling
+
+    return all_pages
 
 # def get_chunks(page):
 #     """the text is split into chunks of 1000 characters each."""
