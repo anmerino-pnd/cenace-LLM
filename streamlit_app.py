@@ -1,7 +1,8 @@
 import os
 import tempfile
 import streamlit as st
-
+# Model we will use to interact with the vector store
+from langchain_community.llms import Ollama
 
 # To create the vector store, we need to load the PDF file
 # split it into pages, split the pages into chunks
@@ -11,19 +12,15 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 
-
-# To have a Chat prompt and response
-from langchain_community.llms import Ollama
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-
 # To create the retrieval chain that will look for the answer
 # in the vector store.
 from langchain.chains import ConversationalRetrievalChain
-from langchain.chains.combine_documents import create_stuff_documents_chain
 
-# To mantain the conversation
+# To mantain the conversation and history
 from langchain.memory import ConversationBufferMemory
+
+# html design of the chatbot interface
+from htmlTemplates import css, bot_template, user_template
 
 
 def load_pdf(pdf_files):
@@ -69,32 +66,20 @@ def get_conversational_chain(VectorStore, retriever):
     )
     return conversation_chain
 
-#     chat_prompt = ChatPromptTemplate.from_template("""Answer the following question based only on the provided context:
-
-# #<context>
-# # {context}
-# # </context>
-
-# # Question: {input}""")
-#     chat_output_parser = StrOutputParser()
-#     document_chain = create_stuff_documents_chain(llm, chat_prompt, chat_output_parser)
-#     return document_chain
-
-# def user_input(user_question):
-#     """Get user input and return the response."""
-#     embeddings = OllamaEmbeddings(model='nomic-embed-text:latest')
-#     new_vector_store = FAISS.load_local("Character_FAISS_nomic", embeddings)
-#     chain = get_conversational_chain()
-#     retriever = new_vector_store.as_retriever()
-#     retrieval_chain = create_retrieval_chain(retriever, chain)
-#     st.write(retrieval_chain.invoke({"input": user_question}))
 
 def main():
     st.set_page_config(page_title="Chatbot", page_icon=":books:")
+    st.write(css, unsafe_allow_html=True)
+
     st.header("Chatbot")
     st.text_input("Haga una pregunta sobre sus documentos")
+
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
+    
+    st.write(user_template, unsafe_allow_html=True)
+    st.write(bot_template, unsafe_allow_html=True)
+
     with st.sidebar:
         st.subheader("Cargue PDFs")
         pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"], accept_multiple_files=True)
