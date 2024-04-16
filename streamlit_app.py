@@ -42,13 +42,11 @@ def load_pdf(pdf_files):
             else:
                     pdf_loader = PyPDFLoader(file)
                     pages = pdf_loader.load_and_split()
-
-            # Extract and concatenate page text directly
-            for page in pages:
-                combined_text += str(page) + " "  # Convert page to string and add space
+            combined_pages += pages
+        
         except Exception as e:
             st.error(f"Error processing file {file}: {e}")  # Informative error handling
-
+    st.success(f"Se han cargado {len(combined_pages)} páginas")
     return combined_pages
 
 # def get_chunks(page):
@@ -103,7 +101,6 @@ def main():
                             st.success(f"Procesado: {file.name}")
                             # Load the PDF and combine its pages
                             pages = load_pdf([file])
-                            st.success(f"Se han cargado {len(pages)} páginas")
                             # Split the pages into chunks
                             # chunks = get_chunks(pages)
 
