@@ -72,23 +72,13 @@ def user_input(user_question):
     st.write(retrieval_chain.invoke({"input": user_question}))
 
 def main():
-    st.header("AI Chatbot")
-    user_question = st.text_area("Haga una pregunta de los documentos cargados:")
-
-    if user_question:
-        user_input(user_question)
+    st.set_page_config(page_title="Chatbot", page_icon=":books:")
+    st.header("Chatbot")
 
     with st.sidebar:
-        st.title("Menú:")
-        pdf_docs = st.file_uploader("Cargue los documentos", accept_multiple_files=True, key="pdf_docs")
-        
-        if st.button("Submit and Process", key="process_button"):
-            with st.spinner("Procesando..."):
-                pdf_docs = StringIO(pdf_docs.getvalue().decode("utf-8"))
-                raw_text = load_pdf(st.write(pdf_docs))
-                text_chunks = get_chunks(raw_text)
-                get_vector_store(text_chunks)
-                st.success("Procesamiento completado.")
+        st.subheader("Cargue PDFs")
+        st.file_uploader("Cargar PDF", type=["pdf"])
+        st.button("Procesar PDF")
 
 if __name__ == "__main__":
     main()
