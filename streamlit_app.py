@@ -95,6 +95,7 @@ def main():
                 if pdf_docs is not None:
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
+                    st.success(f"Se han dividido los documentos en {len(chunks)} fragmentos")
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
 
