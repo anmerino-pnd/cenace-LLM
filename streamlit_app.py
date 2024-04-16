@@ -9,7 +9,6 @@ import streamlit as st
 from PyPDF2 import PdfReader
 from langchain.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 
@@ -56,8 +55,7 @@ def get_chunks(raw_text):
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
-    #embeddings = HuggingFaceInstructEmbeddings(model_name='hkunlp/instructor-xl')
-    vector_store = FAISS.from_texts(texts = chunks, embedding = embeddings)
+    vector_store = FAISS.from_documents(chunks, embeddings)
     st.write(vector_store)
     return vector_store
 
