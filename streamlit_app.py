@@ -78,8 +78,7 @@ def main():
 
     with st.sidebar:
         st.title("Menú:")
-        pdf_docs = st.file_uploader("Carge los documentos", accept_multiple_files=True)
-        pdf_docs = os.path.join("/tmp", pdf_docs) if pdf_docs else None
+        pdf_docs = st.file_uploader("Cargue los documentos", accept_multiple_files=True)
         if st.button("Submit and Process", key="process_button"):
             with st.spinner("Procesando..."):
                 raw_text = load_pdf(pdf_docs)
