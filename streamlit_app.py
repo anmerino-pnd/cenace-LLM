@@ -49,8 +49,8 @@ def load_pdf(pdf_files):
 
 def get_chunks(raw_text):
     """the text is split into chunks of 1000 characters each."""
-    text_splitter = CharacterTextSplitter(separator= "\n" ,chunk_size=1000, chunk_overlap=200, length_function=len)
-    chunks = text_splitter.split_documents(raw_text)
+    text_splitter = CharacterTextSplitter(separator= "\n" ,chunk_size=1000, chunk_overlap=200)
+    chunks = text_splitter.split_text(raw_text)
     return chunks
 
 # def get_vector_store(chunks):
