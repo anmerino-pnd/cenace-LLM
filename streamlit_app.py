@@ -87,17 +87,7 @@ def main():
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
                 if pdf_docs is not None:
-                    for file in pdf_docs:
-                        # Process each PDF
-                        try:
-                            st.success(f"Procesado: {file.name}")
-                            # Load the PDF and combine its pages
-                            pages = load_pdf([file])
-                            # Split the pages into chunks
-                            # chunks = get_chunks(pages)
-
-                        except Exception as e:
-                            st.error(f"Error procesando {file.name}: {e}")
+                    raw_text = load_pdf(pdf_docs)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
 
