@@ -71,7 +71,7 @@ def main():
 
     with st.sidebar:
         st.subheader("Cargue PDFs")
-        pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"], accept_multiple_files=True)
+        pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"], accept_multiple_files=False)
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
                 # get pdf text
