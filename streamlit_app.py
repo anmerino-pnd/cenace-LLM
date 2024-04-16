@@ -32,7 +32,7 @@ def load_pdf(pdf_files):
         list: A list containing all pages from all the PDFs.
     """
 
-    all_pages = []
+    combined_pages = []
     for file in pdf_files:
         try:
             # Handle both file paths and Streamlit UploadedFile objects
@@ -45,11 +45,13 @@ def load_pdf(pdf_files):
                     pdf_loader = pdf_loader.PyPDFLoader(f)
                     pages = pdf_loader.load_and_split()
 
-            all_pages.extend(pages)  # Efficiently append all pages
+            # Extract and concatenate page text directly
+            for page in pages:
+                combined_text += str(page) + " "  # Convert page to string and add space
         except Exception as e:
             print(f"Error processing file {file}: {e}")  # Informative error handling
 
-    return all_pages
+    return combined_pages
 
 # def get_chunks(page):
 #     """the text is split into chunks of 1000 characters each."""
