@@ -88,6 +88,7 @@ def main():
             with st.spinner("Procesando PDF"):
                 if pdf_docs is not None:
                     raw_text = load_pdf(pdf_docs)
+                    st.write(raw_text)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
 
