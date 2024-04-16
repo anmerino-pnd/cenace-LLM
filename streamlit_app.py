@@ -2,11 +2,14 @@ import os
 import tempfile
 import streamlit as st
 
+import subprocess
+# Instalar la librería utilizando pip
+subprocess.call(['pip', 'install', 'langchain-chroma'])
+
 
 # To create the vector store, we need to load the PDF file
 # split it into pages, split the pages into chunks
 # and get the vectors for each chunk.
-pip install langchain-chroma
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS, chroma
 from langchain.text_splitter import CharacterTextSplitter
