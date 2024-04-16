@@ -50,7 +50,8 @@ def load_pdf(pdf_files):
 def get_chunks(raw_text):
     """the text is split into chunks of 1000 characters each."""
     text_splitter = CharacterTextSplitter(separator= "\n" ,chunk_size=1000, chunk_overlap=200)
-    chunks = text_splitter.split_text(raw_text)
+    #chunks = text_splitter.split_text(raw_text)
+    chunks = text_splitter.split_documents(raw_text)
     return chunks
 
 def get_vector_store(chunks):
@@ -93,9 +94,10 @@ def main():
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
                 if pdf_docs is not None:
-                    raw_text = load_pdf(pdf_docs)
-                    chunks = get_chunks(raw_text)
-                    vectore_store = get_vector_store(chunks)
+                    st.write(type(pdf_docs))
+                    #raw_text = load_pdf(pdf_docs)
+                    #chunks = get_chunks(raw_text)
+                    #vectore_store = get_vector_store(chunks)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
 
