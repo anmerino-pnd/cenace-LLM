@@ -43,7 +43,7 @@ def load_pdf(pdf_files):
             extracted_texts.append(text.strip())  # Store extracted text for each file
 
         except Exception as e:
-            print(f"Error processing file {pdf_file.name}: {e}")
+            print(f"Error processing file {pdf.name}: {e}")
             extracted_texts.append(None)  # Indicate error
 
     return extracted_texts
@@ -120,7 +120,6 @@ def main():
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
                 if pdf_docs is not None:
-                    st.write(type(pdf_docs), pdf_docs)
                     raw_text = load_pdf(pdf_docs)
                     st.write(raw_text)
                     #chunks = get_chunks(raw_text)
