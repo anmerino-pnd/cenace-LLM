@@ -49,7 +49,7 @@ def load_pdf(pdf_files):
             for page in pages:
                 combined_text += str(page) + " "  # Convert page to string and add space
         except Exception as e:
-            print(f"Error processing file {file}: {e}")  # Informative error handling
+            st.error(f"Error processing file {file}: {e}")  # Informative error handling
 
     return combined_pages
 
