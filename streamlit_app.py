@@ -55,9 +55,14 @@ def get_chunks(raw_text):
 
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
-    #embeddings = OllamaEmbeddings(model='nomic-embed-text:latest') 
-    embeddings = HuggingFaceInstructEmbeddings(model_name= 'hkunlp/instructor-xl')
-    vector_store = FAISS.from_documents(chunks, embeddings)
+    try:
+        #embeddings = OllamaEmbeddings(model='nomic-embed-text:latest')
+        embeddings = HuggingFaceInstructEmbeddings(model_name='hkunlp/instructor-xl')
+        vector_store = FAISS.create_local("Character_FAISS_nomic", embeddings)
+        for chunk in chunks:
+            vector_store.add(chunk)
+    except Exception as e:
+        print(f"Error creating vector store: {e}")
     return vector_store
 
 def get_conversational_chain(VectorStore):
