@@ -79,7 +79,7 @@ def main():
 
     with st.sidebar:
         st.title("Menú:")
-        pdf_docs = st.file_uploader("Cargue los documentos", accept_multiple_files=True, key="str")
+        pdf_docs = st.file_uploader("Cargue los documentos", accept_multiple_files=True, key="pdf_docs")
         
         if st.button("Submit and Process", key="process_button"):
             with st.spinner("Procesando..."):
