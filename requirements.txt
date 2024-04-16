@@ -5,3 +5,4 @@ pypdf
 faiss-cpu
 huggingface_hub
 InstructorEmbedding
+langchain-chroma
