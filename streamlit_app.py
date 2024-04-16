@@ -71,18 +71,24 @@ def main():
 
     with st.sidebar:
         st.subheader("Cargue PDFs")
-        pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"], accept_multiple_files=False)
+        pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"], accept_multiple_files=True)
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
-                # get pdf text
                 if pdf_docs is not None:
-                    #raw_text = load_pdf(pdf_docs)
-                    st.success(pdf_docs.name)
+                    for file in pdf_docs:
+                        # Process each PDF
+                        try:
+                            # Get PDF text
+                            raw_text = load_pdf(file)
+                            st.success(f"Procesado: {file.name}")
+
+                            # Process or display chunks and vectors as needed
+                            # ...
+
+                        except Exception as e:
+                            st.error(f"Error procesando {file.name}: {e}")
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
-                # get chunks
-                
-                # get vectors
 
 
 
