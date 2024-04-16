@@ -51,7 +51,7 @@ def get_chunks(raw_text):
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
-    vector_store = Qdrant.afrom_documents(chunks, embeddings)
+    vector_store = Qdrant.afrom_documents(chunks, embeddings, location=":memory:")
     return vector_store
 
 def get_conversational_chain(VectorStore):
@@ -60,6 +60,7 @@ def get_conversational_chain(VectorStore):
     memory = ConversationBufferMemory(memory_key = 'chat_history', return_messages= True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm = llm,
+        retriever= VectorStore.as_retriever(),
         memory = memory
     )
     return conversation_chain
