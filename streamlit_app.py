@@ -33,7 +33,11 @@ def load_pdf(pdf_files):
     text = ""
     for pdf in pdf_files:
         try:
-            pdf_reader = PdfReader(pdf)
+            if isinstance(pdf, str):  # Handle file paths directly
+                pdf_reader = PdfReader(pdf)
+            else:  # Extract file path from Streamlit UploadedFile
+                with open(pdf.name, "rb") as f:
+                    pdf_reader = PdfReader(f)
 
             if pdf_reader.isEncrypted:
                 st.error("El archivo PDF parece estar encriptado. Por favor, proporcione una versión desencriptada o suba un archivo PDF diferente.")
