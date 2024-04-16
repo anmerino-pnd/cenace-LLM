@@ -77,8 +77,8 @@ def main():
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
     
-    st.write(user_template, unsafe_allow_html=True)
-    st.write(bot_template, unsafe_allow_html=True)
+    # st.write(user_template, unsafe_allow_html=True)
+    # st.write(bot_template, unsafe_allow_html=True)
 
     with st.sidebar:
         st.subheader("Cargue PDFs")
