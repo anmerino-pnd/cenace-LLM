@@ -1,6 +1,7 @@
 import os
-from io import StringIO
 import streamlit as st
+from io import StringIO
+
 
 # To create the vector store, we need to load the PDF file
 # split it into pages, split the pages into chunks
