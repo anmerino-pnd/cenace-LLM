@@ -52,7 +52,6 @@ def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
     vector_store = FAISS.from_documents(chunks, embeddings)
-    st.write(vector_store.index.ntotal)
     return vector_store
 
 def get_conversational_chain(VectorStore):
@@ -101,6 +100,7 @@ def main():
                 if pdf_docs is not None:
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
+                    st.write(chunks)
                     vectore_store = get_vector_store(chunks)
                     st.session_state.conversation = get_conversational_chain(
                         vectore_store)
