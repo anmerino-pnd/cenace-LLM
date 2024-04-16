@@ -54,7 +54,7 @@ def get_vector_store(chunks):
     vector_store = Qdrant.afrom_documents(chunks, embeddings)
     return vector_store
 
-def get_conversational_chain(VectorStore, retriever):
+def get_conversational_chain(VectorStore):
     """Get a conversation prompt and response."""
     llm = Ollama(model='gemma:2b')
     memory = ConversationBufferMemory(memory_key = 'chat_history', return_messages= True)
