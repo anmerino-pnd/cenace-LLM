@@ -38,7 +38,7 @@ def load_pdf(pdf_files):
             pages = pdf_loader.load_and_split()
             text = ""
             for page in pages:
-                text += page.extract_text() + " "  # Add space between pages
+                text += page 
 
             extracted_texts.append(text.strip())  # Store extracted text for each file
 
