@@ -21,8 +21,11 @@ from langchain_core.output_parsers import StrOutputParser
 
 # To create the retrieval chain that will look for the answer
 # in the vector store.
-from langchain.chains import create_retrieval_chain
+from langchain.chains import ConversationalRetrievalChain
 from langchain.chains.combine_documents import create_stuff_documents_chain
+
+# To mantain the conversation
+from langchain.memory import ConversationBufferMemory
 
 
 def load_pdf(pdf_files):
@@ -57,16 +60,24 @@ def get_vector_store(chunks):
     vector_store = FAISS.from_documents(chunks, embeddings)
     return vector_store
 
-# def get_conversational_chain():
-#     """Get a conversation prompt and response."""
-#     llm = Ollama(model='gemma:2b')
+def get_conversational_chain(VectorStore):
+    """Get a conversation prompt and response."""
+    llm = Ollama(model='gemma:2b')
+    memory = ConversationBufferMemory(memory_key = 'chat_history', return_messages= True)
+    conversation_chain = ConversationalRetrievalChain.from_llm(
+        llm = llm,
+        retriever = VectorStore.as_retriever(),
+        memory = memory
+    )
+    return conversation_chain
+
 #     chat_prompt = ChatPromptTemplate.from_template("""Answer the following question based only on the provided context:
 
-# <context>
-# {context}
-# </context>
+# #<context>
+# # {context}
+# # </context>
 
-# Question: {input}""")
+# # Question: {input}""")
 #     chat_output_parser = StrOutputParser()
 #     document_chain = create_stuff_documents_chain(llm, chat_prompt, chat_output_parser)
 #     return document_chain
@@ -84,7 +95,8 @@ def main():
     st.set_page_config(page_title="Chatbot", page_icon=":books:")
     st.header("Chatbot")
     st.text_input("Haga una pregunta sobre sus documentos")
-
+    if "conversation" not in st.session_state:
+        st.session_state.conversation = None
     with st.sidebar:
         st.subheader("Cargue PDFs")
         pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"], accept_multiple_files=True)
@@ -95,6 +107,7 @@ def main():
                     chunks = get_chunks(raw_text)
                     vectore_store = get_vector_store(chunks)
                     st.success("Vector store creado")
+                    st.session_state.conversation = get_conversational_chain(vectore_store)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
 
