@@ -80,9 +80,10 @@ def main():
     with st.sidebar:
         st.title("Menú:")
         pdf_docs = st.file_uploader("Cargue los documentos", accept_multiple_files=True, key="str")
-        pdf_docs = StringIO(pdf_docs.getvalue().decode("utf-8"))
+        
         if st.button("Submit and Process", key="process_button"):
             with st.spinner("Procesando..."):
+                pdf_docs = StringIO(pdf_docs.getvalue().decode("utf-8"))
                 raw_text = load_pdf(st.write(pdf_docs))
                 text_chunks = get_chunks(raw_text)
                 get_vector_store(text_chunks)
