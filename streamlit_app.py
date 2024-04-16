@@ -1,4 +1,5 @@
 import os
+from io import StringIO
 import streamlit as st
 
 # To create the vector store, we need to load the PDF file
@@ -81,7 +82,7 @@ def main():
         pdf_docs = st.file_uploader("Cargue los documentos", accept_multiple_files=True)
         if st.button("Submit and Process", key="process_button"):
             with st.spinner("Procesando..."):
-                raw_text = load_pdf(pdf_docs)
+                raw_text = load_pdf(StringIO(pdf_docs.getvalue().decode("utf-8")))
                 text_chunks = get_chunks(raw_text)
                 get_vector_store(text_chunks)
                 st.success("Procesamiento completado.")
