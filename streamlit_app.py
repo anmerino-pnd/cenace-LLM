@@ -5,6 +5,7 @@ import streamlit as st
 # To create the vector store, we need to load the PDF file
 # split it into pages, split the pages into chunks
 # and get the vectors for each chunk.
+from PyPDF2 import PdfReader
 from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OllamaEmbeddings
@@ -24,30 +25,21 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 
 def load_pdf(pdf_files):
     """Loads a list of PDF files and combines their pages into a single list.
-
     Args:
         pdf_files (list): A list of file paths or Streamlit UploadedFile objects.
-
     Returns:
         list: A list containing all pages from all the PDFs.
     """
-
-    combined_pages = []
-    for file in pdf_files:
+    text = ""
+    for pdf in pdf_files:
         try:
-            # Handle both file paths and Streamlit UploadedFile objects
-            if isinstance(file, str):
-                    pdf_loader = PyPDFLoader(file)
-                    pages = pdf_loader.load_and_split()
-            else:
-                    pdf_loader = PyPDFLoader(file)
-                    pages = pdf_loader.load_and_split()
-            combined_pages += pages
-        
+            pdf_reader = PdfReader(pdf)
+            for page in pdf_reader.pages:
+                text += page.extract_text()
         except Exception as e:
-            st.error(f"Error processing file {file}: {e}")  # Informative error handling
-    st.success(f"Se han cargado {len(combined_pages)} páginas")
-    return combined_pages
+            st.error(f"Error processing file {pdf}: {e}")  # Informative error handling
+    st.success(f"Se han cargado {len(text)} páginas")
+    return text
 
 # def get_chunks(page):
 #     """the text is split into chunks of 1000 characters each."""
