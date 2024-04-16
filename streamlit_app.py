@@ -1,6 +1,5 @@
 import os
 import streamlit as st
-from io import StringIO
 
 
 # To create the vector store, we need to load the PDF file
@@ -23,11 +22,12 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
 
-# def load_pdf(file):
-#     """Load a PDF file and split it into pages."""
-#     pdf_loader = PyPDFLoader(file)
-#     page = pdf_loader.load_and_split()
-#     return page
+def load_pdf(file):
+    """Load a PDF file and split it into pages."""
+    with open(file.name, "rb") as f:
+        pdf_loader = pdf_loader.PyPDFLoader(f)
+        page = pdf_loader.load_and_split()
+        return page
 
 # def get_chunks(page):
 #     """the text is split into chunks of 1000 characters each."""
@@ -67,11 +67,23 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 def main():
     st.set_page_config(page_title="Chatbot", page_icon=":books:")
     st.header("Chatbot")
+    st.text_input("Haga una pregunta sobre sus documentos")
 
     with st.sidebar:
         st.subheader("Cargue PDFs")
-        st.file_uploader("Cargar PDF", type=["pdf"])
-        st.button("Procesar PDF")
+        pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"])
+        if st.button("Procesar PDF"):
+            with st.spinner("Procesando PDF"):
+                # get pdf text
+                if pdf_docs is not None:
+                    raw_text = load_pdf(pdf_docs)
+                else:
+                    st.error("No se ha seleccionado ningún archivo PDF")
+                # get chunks
+                
+                # get vectors
+
+
 
 if __name__ == "__main__":
     main()
