@@ -1,4 +1,5 @@
 import os
+import tempfile
 import streamlit as st
 
 
@@ -24,28 +25,53 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 
 
 def load_pdf(pdf_files):
-    """Loads a list of PDF files and combines their pages into a single list.
-    Args:
-        pdf_files (list): A list of file paths or Streamlit UploadedFile objects.
-    Returns:
-        list: A list containing all pages from all the PDFs.
-    """
-    text = ""
+    extracted_texts = []
     for pdf in pdf_files:
         try:
-            pdf_reader = PdfReader(pdf)
+            # Create a temporary file for each PDF
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                temp_file.write(pdf.read())
+                file_path = temp_file.name
 
-            if pdf_reader.isEncrypted:
-                st.error("El archivo PDF parece estar encriptado. Por favor, proporcione una versión desencriptada o suba un archivo PDF diferente.")
-            else:
-                for page in pdf_reader.pages:
-                    text += page.extract_text()
+            # Use PyPDFLoader to process the PDF
+            pdf_loader = PyPDFLoader(file_path)
+            pages = pdf_loader.load_and_split()
+            text = ""
+            for page in pages:
+                text += page.extract_text() + " "  # Add space between pages
+
+            extracted_texts.append(text.strip())  # Store extracted text for each file
+
         except Exception as e:
-            st.error(f"Error processing file {pdf}: {e}")  # Informative error handling
+            print(f"Error processing file {pdf_file.name}: {e}")
+            extracted_texts.append(None)  # Indicate error
 
-    if text:
-        st.success(f"Se han cargado {len(text)} páginas")
-    return text
+    return extracted_texts
+
+
+# def load_pdf(pdf_files):
+#     """Loads a list of PDF files and combines their pages into a single list.
+#     Args:
+#         pdf_files (list): A list of file paths or Streamlit UploadedFile objects.
+#     Returns:
+#         list: A list containing all pages from all the PDFs.
+#     """
+#     text = ""
+#     for pdf in pdf_files:
+#         try:
+#             pdf_reader = PdfReader(pdf)
+
+#             if pdf_reader.isEncrypted:
+#                 st.error("El archivo PDF parece estar encriptado. Por favor, proporcione una versión desencriptada o suba un archivo PDF diferente.")
+#             else:
+#                 for page in pdf_reader.pages:
+#                     text += page.extract_text()
+#         except Exception as e:
+#             st.error(f"Error processing file {pdf}: {e}")  # Informative error handling
+
+#     if text:
+#         st.success(f"Se han cargado {len(text)} páginas")
+#     return text
 
 def get_chunks(raw_text):
     """the text is split into chunks of 1000 characters each."""
