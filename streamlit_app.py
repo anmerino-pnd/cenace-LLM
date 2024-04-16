@@ -121,7 +121,8 @@ def main():
             with st.spinner("Procesando PDF"):
                 if pdf_docs is not None:
                     st.write(type(pdf_docs), pdf_docs)
-                    #raw_text = load_pdf(pdf_docs)
+                    raw_text = load_pdf(pdf_docs)
+                    st.write(raw_text)
                     #chunks = get_chunks(raw_text)
                     #vectore_store = get_vector_store(chunks)
                 else:
