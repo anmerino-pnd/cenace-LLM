@@ -54,7 +54,7 @@ def get_chunks(raw_text):
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
-    vector_store = chroma.from_documents(chunks, embeddings)
+    vector_store = chroma(chunks, embeddings)
     st.write(vector_store)
     return vector_store
 
