@@ -101,9 +101,10 @@ def main():
                         # Process each PDF
                         try:
                             st.success(f"Procesado: {file.name}")
-
-                            # Process or display chunks and vectors as needed
-                            # ...
+                            # Load the PDF and combine its pages
+                            pages = load_pdf([file])
+                            # Split the pages into chunks
+                            # chunks = get_chunks(pages)
 
                         except Exception as e:
                             st.error(f"Error procesando {file.name}: {e}")
