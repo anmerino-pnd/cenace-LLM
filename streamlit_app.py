@@ -103,7 +103,7 @@ def main():
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
                     vectore_store = get_vector_store(chunks)
-                    st.write(vectore_store, type(vectore_store.as_retriever(search_type="mmr")))
+                    st.write(vectore_store, type(vectore_store))
                     st.session_state.conversation = get_conversational_chain(
                         vectore_store)
                 else:
