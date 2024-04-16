@@ -55,6 +55,7 @@ def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
     vector_store = Qdrant.afrom_documents(chunks, embeddings)
+    st.write(bool(vector_store.as_retriever()))
     return vector_store
 
 def get_conversational_chain(VectorStore):
