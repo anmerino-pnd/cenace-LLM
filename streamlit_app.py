@@ -55,8 +55,8 @@ def get_chunks(raw_text):
 
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
-    #embeddings = OllamaEmbeddings(model='nomic-embed-text:latest')
-    embeddings = HuggingFaceInstructEmbeddings(model_name='hkunlp/instructor-xl')
+    embeddings = OllamaEmbeddings(model='nomic-embed-text:latest')
+    #embeddings = HuggingFaceInstructEmbeddings(model_name='hkunlp/instructor-xl')
     st.write(embeddings)
     vector_store = FAISS.from_documents(chunks, embeddings)
 
