@@ -55,16 +55,16 @@ def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
     vector_store = Qdrant.afrom_documents(chunks, embeddings)
-    st.write(bool(vector_store.as_retriever()))
-    return vector_store
+    retriever = vector_store.as_retriever()
+    return vector_store, retriever
 
-def get_conversational_chain(VectorStore):
+def get_conversational_chain(VectorStore, retriever):
     """Get a conversation prompt and response."""
     llm = Ollama(model='gemma:2b')
     memory = ConversationBufferMemory(memory_key = 'chat_history', return_messages= True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm = llm,
-        retriever = VectorStore.as_retriever(search_type="mmr"),
+        retriever = retriever,
         memory = memory
     )
     return conversation_chain
@@ -103,10 +103,9 @@ def main():
                 if pdf_docs is not None:
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
-                    vectore_store = get_vector_store(chunks)
-                    st.write(vectore_store, type(vectore_store))
+                    vectore_store, retriever = get_vector_store(chunks)
                     st.session_state.conversation = get_conversational_chain(
-                        vectore_store)
+                        vectore_store, retriever)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
 
