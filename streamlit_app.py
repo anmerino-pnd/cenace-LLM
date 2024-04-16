@@ -7,7 +7,7 @@ from langchain_community.llms import Ollama
 # To create the vector store, we need to load the PDF file
 # split it into pages, split the pages into chunks
 # and get the vectors for each chunk.
-from langchain_community.vectorstores import Qdrant
+from langchain_community.vectorstores.faiss import FAISS
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
@@ -51,7 +51,7 @@ def get_chunks(raw_text):
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='gemma:2b')
-    vector_store = Qdrant.from_documents(chunks, embeddings, location=":memory:")
+    vector_store = FAISS.from_documents(chunks, embeddings, location=":memory:")
     return vector_store
 
 def get_conversational_chain(VectorStore):
