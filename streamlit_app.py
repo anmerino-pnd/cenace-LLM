@@ -38,11 +38,11 @@ def load_pdf(pdf_files):
             # Handle both file paths and Streamlit UploadedFile objects
             if isinstance(file, str):
                 with open(file, "rb") as f:
-                    pdf_loader = pdf_loader.PyPDFLoader(f)
+                    pdf_loader = PyPDFLoader(f)
                     pages = pdf_loader.load_and_split()
             else:
                 with open(file.name, "rb") as f:
-                    pdf_loader = pdf_loader.PyPDFLoader(f)
+                    pdf_loader = PyPDFLoader(f)
                     pages = pdf_loader.load_and_split()
 
             # Extract and concatenate page text directly
