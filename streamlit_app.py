@@ -57,7 +57,6 @@ def get_vector_store(chunks):
 def get_conversational_chain(VectorStore, retriever):
     """Get a conversation prompt and response."""
     llm = Ollama(model='gemma:2b')
-    retriever = Qdrant.as_retriever(search_type="mmr")
     memory = ConversationBufferMemory(memory_key = 'chat_history', return_messages= True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm = llm,
