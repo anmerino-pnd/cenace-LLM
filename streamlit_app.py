@@ -70,6 +70,10 @@ def main():
 
     st.title("Chatbot")
 
+    # Chat history
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
     # Load PDFs and create the vector store
     with st.sidebar:
         st.subheader("Cargue PDFs")
@@ -96,11 +100,17 @@ def main():
                     st.write(conversation)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
-
-    # Chat history
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = []
     
+    # Conversation
+    for message in st.session_state.chat_history:
+        if isinstance(message, HumanMessage):
+            with st.chat_message("Human"):
+                st.markdown(message.content)
+        else:
+            with st.chat_message("Ai"):
+                st.markdown(message.content)
+    
+    # User input  
     user_input = st.chat_input("Escriba su pregunta")
     if user_input is not None and user_input != "":
         st.session_state.chat_history.append(HumanMessage(user_input))
@@ -113,15 +123,6 @@ def main():
             st.write_stream(get_response(user_input, st.session_state.chat_history))
         
         st.session_state.chat_history.append(AIMessage(ai_response))
-    
-    # Conversation
-    for message in st.session_state.chat_history:
-        if isinstance(message, HumanMessage):
-            with st.chat_message("Human"):
-                st.markdown(message.content)
-        else:
-            with st.chat_message("Ai"):
-                st.markdown(message.content)
 
     
     
