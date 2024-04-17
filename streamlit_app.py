@@ -51,13 +51,12 @@ def get_chunks(raw_text):
 def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='nomic-embed-text:latest')
-    st.write("total chunks:", len(chunks))
     vector_store = FAISS.from_documents(chunks, embeddings)
     return vector_store
 
 def get_conversational_chain(VectorStore):
     """Get a conversation prompt and response."""
-    llm = Ollama(model='gemma:2b')
+    llm = Ollama(model='tinyllama')
     memory = ConversationBufferMemory(memory_key = 'chat_history', return_messages= True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm = llm,
@@ -102,6 +101,7 @@ def main():
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
                     vectore_store = get_vector_store(chunks)
+                    st.success("Se ha creado la base de datos")
                     st.session_state.conversation = get_conversational_chain(
                         vectore_store)
                 else:
