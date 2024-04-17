@@ -17,6 +17,7 @@ from langchain.chains import create_retrieval_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain.chains.combine_documents import create_stuff_documents_chain
 
 
 def load_pdf(pdf_files):
@@ -35,6 +36,7 @@ def load_pdf(pdf_files):
 
         except Exception as e:
             print(f"Error procesando archivo {pdf.name}: {e}")
+            extracted_texts.append(None)
     st.success(f"Se han cargado {len(extracted_texts)} páginas")
     return extracted_texts
 
@@ -44,35 +46,32 @@ def get_chunks(raw_text):
     chunks = text_splitter.split_documents(raw_text)
     return chunks
 
-def get_vector_store(chunks):
+@st.cache_resource
+def get_vector_store(_chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='nomic-embed-text:latest')
-    vector_store = FAISS.from_documents(chunks, embeddings)
+    vector_store = FAISS.from_documents(_chunks, embeddings)
     return vector_store
 
-def get_response(query, chat_history):
+def get_response(query, context):
     """Get a conversation prompt and response."""
     llm = Ollama(model='gemma:2b')
     prompt = ChatPromptTemplate.from_template("""
-    You are a helpful assistant. Answer the following questions 
-    based on the contextand history provided.
+    You are a helpful assistant.
+    Answer the following questions considering the history of the conversation:
 
-    Chat History: {chat_history}
+    Context: {context}
 
     Question: {user_question}""")
-    chain = prompt | llm | StrOutputParser()
-    return chain.stream(
-        {"chat_history": chat_history,
-        "user_question": query})
+    document_chain = create_stuff_documents_chain(llm, prompt)
+    retrieval_chain = create_retrieval_chain(context.as_retriever(), document_chain)
+    return retrieval_chain.stream(
+        {"context": context, "user_queston": query})
 
 def main():
     st.set_page_config(page_title="Chatbot", page_icon=":books:")
 
     st.title("Chatbot")
-
-    # Chat history
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = []
 
     # Load PDFs and create the vector store
     with st.sidebar:
@@ -80,27 +79,28 @@ def main():
         pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"], accept_multiple_files=True)
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
-                if pdf_docs is not None:
+                if len(pdf_docs) > 0:
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
-                    vectore_store = get_vector_store(chunks)
-                    st.success("Se ha creado la base de datos")
+                    vector_store = get_vector_store(chunks)
+
                     if "processed" not in st.session_state:
-                        st.session_state.processed = {
-                            "chunks": chunks,
-                            "vector_store": vectore_store
-                        
-                        }
+                        st.session_state.processed = {}
+                    st.session_state.processed["vector_store"] = vector_store
+                    st.success("Se ha creado la base de datos")
+                elif len(pdf_docs) == 0:
+                    # Handle case where no PDFs are selected but processed data exists
+                    if "processed" in st.session_state and "vector_store" in st.session_state.processed:
+                        st.success("Se ha guardado la base de datos (utilizando datos previos)")
                     else:
-                        st.session_state.processed["chunks"] = chunks
-                        st.session_state.processed["vector_store"] = vectore_store
-                        st.success("Se ha actualizado la base de datos")
-                    conversation = get_conversational_chain(
-                        vectore_store)
-                    st.write(conversation)
+                        st.error("No se ha seleccionado ningún archivo")
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
-    
+                
+    # Chat history
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
     # Conversation
     for message in st.session_state.chat_history:
         if isinstance(message, HumanMessage):
@@ -120,7 +120,9 @@ def main():
         
         with st.chat_message("Ai"):
             ai_response =  \
-            st.write_stream(get_response(user_input, st.session_state.chat_history))
+            st.write_stream(get_response( \
+                user_input, \
+                st.session_state.processed["vector_store"]))
         
         st.session_state.chat_history.append(AIMessage(ai_response))
 
