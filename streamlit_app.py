@@ -52,7 +52,7 @@ def get_vector_store(chunks):
 
 def get_response(query, chat_history):
     """Get a conversation prompt and response."""
-    llm = Ollama(model='tinyllama:latest')
+    llm = Ollama(model='gemma:2b')
     prompt = ChatPromptTemplate.from_template("""
     You are a helpful assistant. Answer the following questions 
     based on the contextand history provided.
@@ -61,7 +61,7 @@ def get_response(query, chat_history):
 
     Question: {user_question}""")
     chain = prompt | llm | StrOutputParser()
-    return chain.invoke(
+    return chain.stream(
         {"chat_history": chat_history,
         "user_question": query})
 
@@ -109,8 +109,8 @@ def main():
             st.markdown(user_input)
         
         with st.chat_message("Ai"):
-            ai_response = get_response(user_input, st.session_state.chat_history)
-            st.markdown(ai_response)
+            ai_response =  \
+            st.write_stream(get_response(user_input, st.session_state.chat_history))
         
         st.session_state.chat_history.append(AIMessage(ai_response))
     
