@@ -46,11 +46,10 @@ def get_chunks(raw_text):
     chunks = text_splitter.split_documents(raw_text)
     return chunks
 
-@st.cache_resource
-def get_vector_store(_chunks):
+def get_vector_store(chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='nomic-embed-text:latest')
-    vector_store = FAISS.from_documents(_chunks, embeddings)
+    vector_store = FAISS.from_documents(chunks, embeddings)
     return vector_store
 
 def get_response(query, context):
