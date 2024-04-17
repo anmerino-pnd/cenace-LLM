@@ -38,7 +38,7 @@ def load_pdf(pdf_files):
             extracted_texts += pages
 
         except Exception as e:
-            print(f"Error processing file {pdf.name}: {e}")
+            print(f"Error procesando archivo {pdf.name}: {e}")
     st.success(f"Se han cargado {len(extracted_texts)} páginas")
     return extracted_texts
 
@@ -56,7 +56,7 @@ def get_vector_store(chunks):
 
 def get_conversational_chain(VectorStore):
     """Get a conversation prompt and response."""
-    llm = Ollama(model='tinyllama')
+    llm = Ollama(model='tinyllama:latest')
     memory = ConversationBufferMemory(memory_key = 'chat_history', return_messages= True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm = llm,
@@ -65,32 +65,11 @@ def get_conversational_chain(VectorStore):
     )
     return conversation_chain
 
-def handle_user_input(user_question):
-    response = st.session_state.conversation({'question': user_question})
-    st.session_state.chat_history = response['chat_history']
-    for i, message in enumerate(st.session_state.chat_history):
-        if i % 2 == 0:
-            st.write(user_template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
-        else:
-            st.write(bot_template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
-
 def main():
     st.set_page_config(page_title="Chatbot", page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
 
     st.header("Chatbot")
-    user_question = st.text_input("Haga una pregunta sobre sus documentos")
-    if user_question:
-        handle_user_input(user_question)
-
-    if "conversation" not in st.session_state:
-        st.session_state.conversation = None
-
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = None
-    
-    # st.write(user_template, unsafe_allow_html=True)
-    # st.write(bot_template, unsafe_allow_html=True)
 
     with st.sidebar:
         st.subheader("Cargue PDFs")
@@ -102,12 +81,49 @@ def main():
                     chunks = get_chunks(raw_text)
                     vectore_store = get_vector_store(chunks)
                     st.success("Se ha creado la base de datos")
-                    st.session_state.conversation = get_conversational_chain(
-                        vectore_store)
+                    if "processed" not in st.session_state:
+                        st.session_state.processed = {
+                            "chunks": chunks,
+                            "vector_store": vectore_store
+                        
+                        }
+                    else:
+                        st.session_state.processed["chunks"] = chunks
+                        st.session_state.processed["vector_store"] = vectore_store
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
+    
+    st.session_state.conversation = get_conversational_chain(
+                        vectore_store)
 
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
+    if user_question := st.chat_input("Haga una pregunta sobre sus documentos")
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(user_question)
+
+        history = [
+            f"{message['role']}: {message['content']}" 
+            for message in st.session_state.messages
+        ]
+    
+        result = st.session_state.conversation({
+            "question": user_question, 
+            "chat_history": history
+        })
+
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = result["answer"]
+            message_placeholder.markdown(full_response + "|")
+        message_placeholder.markdown(full_response)    
+        print(full_response)
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 if __name__ == "__main__":
     main()
