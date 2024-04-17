@@ -12,15 +12,11 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 
-# To create the retrieval chain that will look for the answer
-# in the vector store.
-from langchain.chains import ConversationalRetrievalChain
-
 # To mantain the conversation and history
-from langchain.memory import ConversationBufferMemory
-
-# html design of the chatbot interface
-from htmlTemplates import css, bot_template, user_template
+from langchain.chains import create_retrieval_chain
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.messages import HumanMessage, AIMessage
 
 
 def load_pdf(pdf_files):
@@ -54,23 +50,27 @@ def get_vector_store(chunks):
     vector_store = FAISS.from_documents(chunks, embeddings)
     return vector_store
 
-def get_conversational_chain(VectorStore):
+def get_response(query, chat_history):
     """Get a conversation prompt and response."""
     llm = Ollama(model='tinyllama:latest')
-    memory = ConversationBufferMemory(memory_key = 'chat_history', return_messages= True)
-    conversation_chain = ConversationalRetrievalChain.from_llm(
-        llm = llm,
-        retriever= VectorStore.as_retriever(),
-        memory = memory
-    )
-    return conversation_chain
+    prompt = ChatPromptTemplate.from_template("""
+    You are a helpful assistant. Answer the following questions 
+    based on the contextand history provided.
+
+    Chat History: {chat_history}
+
+    Question: {user_question}""")
+    chain = prompt | llm | StrOutputParser()
+    return chain.invoke(
+        {"chat_history": chat_history,
+        "user_question": query})
 
 def main():
     st.set_page_config(page_title="Chatbot", page_icon=":books:")
-    st.write(css, unsafe_allow_html=True)
 
-    st.header("Chatbot")
+    st.title("Chatbot")
 
+    # Load PDFs and create the vector store
     with st.sidebar:
         st.subheader("Cargue PDFs")
         pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"], accept_multiple_files=True)
@@ -90,40 +90,41 @@ def main():
                     else:
                         st.session_state.processed["chunks"] = chunks
                         st.session_state.processed["vector_store"] = vectore_store
+                        st.success("Se ha actualizado la base de datos")
+                    conversation = get_conversational_chain(
+                        vectore_store)
+                    st.write(conversation)
                 else:
                     st.error("No se ha seleccionado ningún archivo PDF")
+
+    # Chat history
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
     
-    st.session_state.conversation = get_conversational_chain(
-                        vectore_store)
-
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-    if user_question := st.chat_input("Haga una pregunta sobre sus documentos")
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(user_question)
-
-        history = [
-            f"{message['role']}: {message['content']}" 
-            for message in st.session_state.messages
-        ]
+    user_input = st.chat_input("Escriba su pregunta")
+    if user_input is not None and user_input != "":
+        st.session_state.chat_history.append(HumanMessage(user_input))
+        
+        with st.chat_message("Human"):
+            st.markdown(user_input)
+        
+        with st.chat_message("Ai"):
+            ai_response = get_response(user_input, st.session_state.chat_history)
+            st.markdown(ai_response)
+        
+        st.session_state.chat_history.append(AIMessage(ai_response))
     
-        result = st.session_state.conversation({
-            "question": user_question, 
-            "chat_history": history
-        })
+    # Conversation
+    for message in st.session_state.chat_history:
+        if isinstance(message, HumanMessage):
+            with st.chat_message("Human"):
+                st.markdown(message.content)
+        else:
+            with st.chat_message("Ai"):
+                st.markdown(message.content)
 
-        with st.chat_message("assistant"):
-            message_placeholder = st.empty()
-            full_response = result["answer"]
-            message_placeholder.markdown(full_response + "|")
-        message_placeholder.markdown(full_response)    
-        print(full_response)
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+    
+    
 
 if __name__ == "__main__":
     main()
