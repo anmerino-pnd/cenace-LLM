@@ -15,7 +15,6 @@ from langchain_community.document_loaders import PyPDFLoader
 # To mantain the conversation and history
 from langchain.chains import create_retrieval_chain
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
@@ -52,20 +51,24 @@ def get_vector_store(chunks):
     vector_store = FAISS.from_documents(chunks, embeddings)
     return vector_store
 
-def get_response(query, context):
+def get_response(query, context, history):
     """Get a conversation prompt and response."""
-    llm = Ollama(model='gemma:2b')
+    llm = Ollama(model='tinyllama:latest')
     prompt = ChatPromptTemplate.from_template("""
     You are a helpful assistant.
-    Answer the following questions considering the history of the conversation:
+    Answer the following questions considering the context and history of the conversation:
 
     Context: {context}
+                                              
+    Chat History: {history}
 
-    Question: {user_question}""")
+    Question: {input}""")
     document_chain = create_stuff_documents_chain(llm, prompt)
     retrieval_chain = create_retrieval_chain(context.as_retriever(), document_chain)
-    return retrieval_chain.stream(
-        {"context": context, "user_queston": query})
+    response = retrieval_chain.stream({"input": query, "context": context, "history": history})
+    # Extract only the 'answer' from each dictionary in the response list
+    answer = [item['answer'] for item in response if 'answer' in item]
+    return answer
 
 def main():
     st.set_page_config(page_title="Chatbot", page_icon=":books:")
@@ -111,20 +114,21 @@ def main():
     
     # User input  
     user_input = st.chat_input("Escriba su pregunta")
-    if user_input is not None and user_input != "":
-        st.session_state.chat_history.append(HumanMessage(user_input))
-        
-        with st.chat_message("Human"):
-            st.markdown(user_input)
-        
-        with st.chat_message("Ai"):
-            ai_response =  \
-            st.write_stream(get_response( \
-                user_input, \
-                st.session_state.processed["vector_store"]))
-        
-        st.session_state.chat_history.append(AIMessage(ai_response))
-
+    if "processed" in st.session_state and "vector_store" in st.session_state.processed:
+        if user_input is not None and user_input != "":
+            st.session_state.chat_history.append(HumanMessage(user_input))
+            
+            with st.chat_message("Human"):
+                st.markdown(user_input)
+            
+            with st.chat_message("Ai"):
+                ai_response = st.write_stream(get_response(user_input, 
+                                                           st.session_state.processed["vector_store"],
+                                                           st.session_state.chat_history))
+            
+            st.session_state.chat_history.append(AIMessage(ai_response))
+    else:
+        st.error("Primero cargue un archivo PDF")
     
     
 
