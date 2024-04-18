@@ -45,10 +45,11 @@ def get_chunks(raw_text):
     chunks = text_splitter.split_documents(raw_text)
     return chunks
 
-def get_vector_store(chunks):
+@st.cache_data(persist=True, show_spinner=False)
+def get_vector_store(_chunks):
     """Get vectors for each chunk."""
     embeddings = OllamaEmbeddings(model='nomic-embed-text:latest')
-    vector_store = FAISS.from_documents(chunks, embeddings)
+    vector_store = FAISS.from_documents(_chunks, embeddings)
     return vector_store
 
 def get_response(query, context, history):
@@ -81,11 +82,11 @@ def main():
 
     # Load PDFs and create the vector store
     with st.sidebar:
-        st.subheader("Cargue PDFs")
-        pdf_docs = st.file_uploader("Cargar PDF", type=["pdf"], accept_multiple_files=True)
+        st.title("Cargar PDFs")
+        pdf_docs = st.file_uploader( "",type=["pdf"], accept_multiple_files=True)
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
-                if len(pdf_docs) > 0:
+                if len(pdf_docs) > 0 and "vector_store" not in st.session_state.processed:
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
                     vector_store = get_vector_store(chunks)
@@ -93,14 +94,10 @@ def main():
                     # Save the vector store in session state
                     st.session_state.processed["vector_store"] = vector_store
                     st.success("Se ha creado la base de datos")
-                elif len(pdf_docs) == 0:
-                    # Handle case where no PDFs are selected but processed data exists
-                    if "processed" in st.session_state and "vector_store" in st.session_state.processed:
-                        st.success("Se ha guardado la base de datos (utilizando datos previos)")
-                    else:
-                        st.error("No se ha seleccionado ningún archivo")
+                elif "processed" in st.session_state and "vector_store" in st.session_state.processed:
+                    st.success(f"Se tiene una base de datos cargada")
                 else:
-                    st.error("No se ha seleccionado ningún archivo PDF")
+                    st.error("Cargue un archivo PDF")
                 
     # Chat history
     if "chat_history" not in st.session_state:
@@ -117,7 +114,7 @@ def main():
     
     # User input  
     user_input = st.chat_input("Escriba su pregunta")
-    if "processed" in st.session_state and "vector_store" in st.session_state.processed:
+    if "vector_store" in st.session_state.processed:
         if user_input is not None and user_input != "":
             st.session_state.chat_history.append(HumanMessage(user_input))
             
