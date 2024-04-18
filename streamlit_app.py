@@ -75,6 +75,10 @@ def main():
 
     st.title("Chatbot")
 
+    # Load PDFs and create the vector store (use session state to store processed data)
+    if "processed" not in st.session_state:
+        st.session_state.processed = {}
+
     # Load PDFs and create the vector store
     with st.sidebar:
         st.subheader("Cargue PDFs")
@@ -85,9 +89,8 @@ def main():
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
                     vector_store = get_vector_store(chunks)
-
-                    if "processed" not in st.session_state:
-                        st.session_state.processed = {}
+                    
+                    # Save the vector store in session state
                     st.session_state.processed["vector_store"] = vector_store
                     st.success("Se ha creado la base de datos")
                 elif len(pdf_docs) == 0:
