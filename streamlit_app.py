@@ -1,5 +1,6 @@
 import os
 import tempfile
+import numpy as np
 import streamlit as st
 # Model we will use to interact with the vector store
 from langchain_community.llms import Ollama
@@ -88,11 +89,11 @@ def main():
         st.title("Cargar PDFs")
         pdf_docs = st.file_uploader( "",type=["pdf"], accept_multiple_files=True)
         for pdf in pdf_docs:
-            st.session_state.processed["pdf_docs"].append(pdf.name)
-
+            st.session_state.processed["pdf_docs"].append(pdf)
+        st.write(len(st.session_state.processed["pdf_docs"]))
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
-                if "vector_store" not in st.session_state.processed:
+                if len(st.session_state.processed["pdf_docs"]) > 0 and len(pdf_docs) > 0:
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
                     vector_store = get_vector_store(chunks)
@@ -100,9 +101,9 @@ def main():
                     # Save the vector store in session state
                     st.session_state.processed["vector_store"] = vector_store
                     st.success("Se ha creado la base de datos")
-                elif "processed" in st.session_state and "vector_store" in st.session_state.processed:
-                    st.success(f"Se tiene una base de datos cargada")
-                    st.write(st.session_state.processed["vector_store"])
+                elif len(st.session_state.processed["pdf_docs"]) > 0:
+                    st.write("Se tiene una base de datos cargada con estos archivos: ",
+                             np.unique([pdf.name for pdf in st.session_state.processed["pdf_docs"]]))
                 else:
                     st.error("Cargue un archivo PDF")
                 
