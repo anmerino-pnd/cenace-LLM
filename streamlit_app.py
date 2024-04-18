@@ -79,14 +79,20 @@ def main():
     # Load PDFs and create the vector store (use session state to store processed data)
     if "processed" not in st.session_state:
         st.session_state.processed = {}
+    
+    if "pdf_docs" not in st.session_state.processed:
+        st.session_state.processed["pdf_docs"] = []
 
     # Load PDFs and create the vector store
     with st.sidebar:
         st.title("Cargar PDFs")
         pdf_docs = st.file_uploader( "",type=["pdf"], accept_multiple_files=True)
+        for pdf in pdf_docs:
+            st.session_state.processed["pdf_docs"].append(pdf.name)
+
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
-                if len(pdf_docs) > 0 and "vector_store" not in st.session_state.processed:
+                if "vector_store" not in st.session_state.processed:
                     raw_text = load_pdf(pdf_docs)
                     chunks = get_chunks(raw_text)
                     vector_store = get_vector_store(chunks)
@@ -96,6 +102,7 @@ def main():
                     st.success("Se ha creado la base de datos")
                 elif "processed" in st.session_state and "vector_store" in st.session_state.processed:
                     st.success(f"Se tiene una base de datos cargada")
+                    st.write(st.session_state.processed["vector_store"])
                 else:
                     st.error("Cargue un archivo PDF")
                 
