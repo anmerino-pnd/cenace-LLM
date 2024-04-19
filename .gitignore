@@ -8,3 +8,4 @@ pyvenv.cfg
 Include
 pruebas.ipynb
 ocotillo.pdf
+__pycache__
