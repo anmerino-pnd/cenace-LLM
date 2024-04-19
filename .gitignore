@@ -9,3 +9,6 @@ Include
 pruebas.ipynb
 ocotillo.pdf
 __pycache__
+.ipynb_checkpoints
+env
+docs*
