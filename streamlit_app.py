@@ -88,25 +88,38 @@ def main():
     with st.sidebar:
         st.title("Cargar PDFs")
         pdf_docs = st.file_uploader( "",type=["pdf"], accept_multiple_files=True)
-        for pdf in pdf_docs:
-            st.session_state.processed["pdf_docs"].append(pdf)
-        st.write(len(st.session_state.processed["pdf_docs"]))
         if st.button("Procesar PDF"):
             with st.spinner("Procesando PDF"):
-                if len(st.session_state.processed["pdf_docs"]) > 0 and len(pdf_docs) > 0:
-                    raw_text = load_pdf(pdf_docs)
-                    chunks = get_chunks(raw_text)
-                    vector_store = get_vector_store(chunks)
+                if len(pdf_docs) > 0:  # Check if there are any new PDFs
+                    # Filter new PDFs not already processed
+                    pdfs_to_process = [pdf for pdf in pdf_docs if pdf.name not in [doc.name for doc in st.session_state.processed["pdf_docs"]]]
                     
-                    # Save the vector store in session state
-                    st.session_state.processed["vector_store"] = vector_store
-                    st.success("Se ha creado la base de datos")
+                    if len(pdfs_to_process) > 0:  # Only process if there are new PDFs
+                        raw_text = load_pdf(pdfs_to_process)
+                        chunks = get_chunks(raw_text)
+                        vector_store = get_vector_store(chunks)
+                        st.session_state.processed["vector_store"] = vector_store
+                        st.write(vector_store.docstore.__dict__)
+                        st.success("Se ha creado una base de datos con los archivos cargados")
+                        # Update vector store only with new PDFs
+                        # if "vector_store" in st.session_state.processed:
+                        #     st.session_state.processed["vector_store"].merge_from(vector_store)
+                        #     st.success("Se ha actualizado la base de datos con nuevos archivos")
+                        # else:
+                        #     st.session_state.processed["vector_store"] = vector_store
+                        #     st.success("Se ha creado una base de datos con los archivos cargados")
+                        for pdf in pdf_docs:
+                            st.session_state.processed["pdf_docs"].append(pdf)
+                    else:
+                        st.info("Todos los archivos PDF ya se encuentran procesados")         
                 elif len(st.session_state.processed["pdf_docs"]) > 0:
                     st.write("Se tiene una base de datos cargada con estos archivos: ",
-                             np.unique([pdf.name for pdf in st.session_state.processed["pdf_docs"]]))
+                            np.unique([pdf.name for pdf in st.session_state.processed["pdf_docs"]]))
                 else:
                     st.error("Cargue un archivo PDF")
-                
+    
+
+
     # Chat history
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
